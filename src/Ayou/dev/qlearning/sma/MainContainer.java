@@ -9,12 +9,19 @@ import jade.wrapper.StaleProxyException;
 
 public class MainContainer {
     public static void main(String[] args) throws ControllerException {
-        Runtime runtime= Runtime.instance(); //qui va executer le framework jade
-        //Profile Jade Configuration
-        ProfileImpl profile= new ProfileImpl(); //pour specifier les info de l'application
-        profile.setParameter(ProfileImpl.GUI,"true");
-        AgentContainer mainContainer=runtime.createMainContainer(profile);
+        Runtime runtime = Runtime.instance();
+        ProfileImpl profile = new ProfileImpl();
+        profile.setParameter(ProfileImpl.GUI, "true");
+        AgentContainer mainContainer = runtime.createMainContainer(profile);
         mainContainer.start();
 
+        try {
+            AgentController masterAgent = mainContainer.createNewAgent("MasterAgent",
+                    "Ayou.dev.qlearning.sma.MasterAgent", new Object[]{});
+            masterAgent.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
+

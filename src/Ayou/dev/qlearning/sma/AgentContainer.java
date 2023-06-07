@@ -3,7 +3,7 @@ package Ayou.dev.qlearning.sma;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.AgentController;
-
+/*
 public class AgentContainer {
     public static void main(String[] args)  throws Exception {
 
@@ -16,3 +16,5 @@ public class AgentContainer {
         agentServer.start();
     }
 }
+
+ */

@@ -1,15 +1,17 @@
 package Ayou.dev.qlearning.sma;
 
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
 import javafx.application.Platform;
 
 import java.util.Random;
 
 public class QlearningAgent extends Agent {
-    static final int MAX_EPOCH = 500; //iterations number
+    static final int MAX_EPOCH = 1000; //iterations number
     static final double ALPHA = 0.1; // Learning rate
     static final double GAMMA = 0.9; // Discount factor
     static final int GRID_SIZE=3;
@@ -20,34 +22,33 @@ public class QlearningAgent extends Agent {
     private int stateI;
     private int stateJ;
 
-    private QLearningApp qLearningInterface;
+    //private QLearningApp qLearningInterface;
 
     protected void setup() {
         actions = new int[][]{
-                {0, -1}, // à gauche
-                {0, 1},  // à droite
-                {1, 0},  // en bas
-                {-1, 0}  // en haut
+                {0, -1}, // left
+                {0, 1},  // right
+                {1, 0},  // down
+                {-1, 0}  // up
         };
 
         grid = new int[][]{
-                {0, 1, 0},
-                {0, 0, -1},
+                {0, 0, 1},
+                {-1, 0,-1},
                 {0, 0, 0}
         };
 
         SequentialBehaviour sequentialBehaviour = new SequentialBehaviour();
         sequentialBehaviour.addSubBehaviour(new ResetStateBehaviour());
-        sequentialBehaviour.addSubBehaviour(new QLearningBehaviour(this,50));
+        sequentialBehaviour.addSubBehaviour(new QLearningBehaviour(this,1));
         sequentialBehaviour.addSubBehaviour(new ShowResultsBehaviour());
 
         addBehaviour(sequentialBehaviour);
+
         // Launch the JavaFX application
-        QLearningApp.launch(QLearningApp.class);
+       // QLearningApp.launch(QLearningApp.class);
     }
-    public void setInterface(QLearningApp qLearningInterface) {
-        this.qLearningInterface = qLearningInterface;
-    }
+
     private class ResetStateBehaviour extends OneShotBehaviour {
         public void action() {
             stateI = 2;
@@ -83,32 +84,37 @@ public class QlearningAgent extends Agent {
 
             iter++;
             // Update l'interface graphique avec la nouvelle position de l'agent
-            Platform.runLater(() -> QLearningApp.updateAgentPosition(stateI, stateJ));
+            // Platform.runLater(() -> QLearningApp.updateAgentPosition(stateI, stateJ));
             //QLearningApp.updateAgentPosition(stateI, stateJ);
         }
     }
 
     private class ShowResultsBehaviour extends OneShotBehaviour {
         public void action() {
-            System.out.println("**** q table ****");
-            for (double[] line : qTable) {
-                System.out.print("[");
-                for (double qvalue : line) {
-                    System.out.print(qvalue + ",");
-                }
-                System.out.println("]");
-            }
-
-            System.out.println("");
-            new ResetStateBehaviour();
+//            System.out.println("**** q table ****");
+//            for (double[] line : qTable) {
+//                System.out.print("[");
+//                for (double qvalue : line) {
+//                    System.out.print(qvalue + ",");
+//                }
+//                System.out.println("]");
+//            }
+//
+//            System.out.println("");
+//            new ResetStateBehaviour();
 
             while (!isFinished()) {
                 int act = choseAction(0);
 
-                System.out.println("State: " + (stateI * GRID_SIZE + stateJ) + " action: " + act);
+                //System.out.println("State: " + (stateI * GRID_SIZE + stateJ) + " action: " + act);
                 executeAction(act);
             }
-            System.out.println("Final State: " + (stateI * GRID_SIZE + stateJ));
+            //System.out.println("Final State: " + (stateI * GRID_SIZE + stateJ));
+            // Send the result to the MasterAgent
+            ACLMessage message = new ACLMessage(ACLMessage.INFORM);
+            message.addReceiver(new AID("MasterAgent", AID.ISLOCALNAME));
+            message.setContent(String.valueOf(stateI * GRID_SIZE + stateJ));
+            send(message);
         }
     }
 
@@ -138,7 +144,7 @@ public class QlearningAgent extends Agent {
         stateJ = Math.max(0, Math.min(actions[act][1] + stateJ, GRID_SIZE - 1));
 
         // Mettez à jour l'interface graphique avec la nouvelle position de l'agent
-        Platform.runLater(() -> QLearningApp.updateAgentPosition(stateI, stateJ));
+        //Platform.runLater(() -> QLearningApp.updateAgentPosition(stateI, stateJ));
 
         return stateI * GRID_SIZE + stateJ;
     }

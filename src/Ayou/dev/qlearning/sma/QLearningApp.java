@@ -1,13 +1,12 @@
 package Ayou.dev.qlearning.sma;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
+/*
 public class QLearningApp extends Application {
     private static Label[][] gridLabels;
     private static final int GRID_SIZE = 3;
@@ -18,7 +17,7 @@ public class QLearningApp extends Application {
                 if (row == i && col == j) {
                     gridLabels[row][col].setStyle("-fx-background-color: yellow;");
                 } else {
-                    gridLabels[row][col].setStyle("");
+                    gridLabels[row][col].setStyle("-fx-background-color: #a1a4b7;");
                 }
             }
         }
@@ -51,4 +50,6 @@ public class QLearningApp extends Application {
         primaryStage.show();
     }
 }
+
+ */
 
