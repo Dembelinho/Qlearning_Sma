@@ -3,7 +3,9 @@ package Ayou.dev.qlearning.sma;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
+import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
+import jade.wrapper.StaleProxyException;
 
 public class MainContainer {
     public static void main(String[] args) throws ControllerException {
@@ -13,5 +15,6 @@ public class MainContainer {
         profile.setParameter(ProfileImpl.GUI,"true");
         AgentContainer mainContainer=runtime.createMainContainer(profile);
         mainContainer.start();
+
     }
 }

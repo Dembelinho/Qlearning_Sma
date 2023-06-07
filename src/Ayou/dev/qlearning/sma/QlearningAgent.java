@@ -4,16 +4,12 @@ import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.TickerBehaviour;
-import jade.wrapper.AgentController;
-import jade.wrapper.ContainerController;
-import jade.wrapper.StaleProxyException;
+import javafx.application.Platform;
 
 import java.util.Random;
 
-import static Ayou.dev.qlearning.sma.Parameters.*;
-
 public class QlearningAgent extends Agent {
-    static final int MAX_EPOCH = 1000; //iterations number
+    static final int MAX_EPOCH = 500; //iterations number
     static final double ALPHA = 0.1; // Learning rate
     static final double GAMMA = 0.9; // Discount factor
     static final int GRID_SIZE=3;
@@ -23,6 +19,8 @@ public class QlearningAgent extends Agent {
     private int[][] actions;
     private int stateI;
     private int stateJ;
+
+    private QLearningApp qLearningInterface;
 
     protected void setup() {
         actions = new int[][]{
@@ -34,18 +32,22 @@ public class QlearningAgent extends Agent {
 
         grid = new int[][]{
                 {0, 1, 0},
-                {-1, 0, -1},
+                {0, 0, -1},
                 {0, 0, 0}
         };
 
         SequentialBehaviour sequentialBehaviour = new SequentialBehaviour();
         sequentialBehaviour.addSubBehaviour(new ResetStateBehaviour());
-        sequentialBehaviour.addSubBehaviour(new QLearningBehaviour(this,5));
+        sequentialBehaviour.addSubBehaviour(new QLearningBehaviour(this,50));
         sequentialBehaviour.addSubBehaviour(new ShowResultsBehaviour());
 
         addBehaviour(sequentialBehaviour);
+        // Launch the JavaFX application
+        QLearningApp.launch(QLearningApp.class);
     }
-
+    public void setInterface(QLearningApp qLearningInterface) {
+        this.qLearningInterface = qLearningInterface;
+    }
     private class ResetStateBehaviour extends OneShotBehaviour {
         public void action() {
             stateI = 2;
@@ -80,6 +82,9 @@ public class QlearningAgent extends Agent {
                     (grid[stateI][stateJ] + GAMMA * qTable[nextState][act1] - qTable[currentState][act]);
 
             iter++;
+            // Update l'interface graphique avec la nouvelle position de l'agent
+            Platform.runLater(() -> QLearningApp.updateAgentPosition(stateI, stateJ));
+            //QLearningApp.updateAgentPosition(stateI, stateJ);
         }
     }
 
@@ -99,6 +104,7 @@ public class QlearningAgent extends Agent {
 
             while (!isFinished()) {
                 int act = choseAction(0);
+
                 System.out.println("State: " + (stateI * GRID_SIZE + stateJ) + " action: " + act);
                 executeAction(act);
             }
@@ -130,6 +136,10 @@ public class QlearningAgent extends Agent {
     private int executeAction(int act) {
         stateI = Math.max(0, Math.min(actions[act][0] + stateI, GRID_SIZE - 1));
         stateJ = Math.max(0, Math.min(actions[act][1] + stateJ, GRID_SIZE - 1));
+
+        // Mettez à jour l'interface graphique avec la nouvelle position de l'agent
+        Platform.runLater(() -> QLearningApp.updateAgentPosition(stateI, stateJ));
+
         return stateI * GRID_SIZE + stateJ;
     }
     private boolean isFinished() {
