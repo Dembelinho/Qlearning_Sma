@@ -8,10 +8,16 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
+import java.util.Random;
+
 import static Ayou.dev.qlearning.sma.Parameters.*;
 
 public class QlearningAgent extends Agent {
-
+    static final int MAX_EPOCH = 1000; //iterations number
+    static final double ALPHA = 0.1; // Learning rate
+    static final double GAMMA = 0.9; // Discount factor
+    static final int GRID_SIZE=3;
+    static final int ACTION_SIZE=4;
     private int[][] grid;
     private double[][] qTable = new double[GRID_SIZE * GRID_SIZE][ACTION_SIZE];
     private int[][] actions;
@@ -27,14 +33,14 @@ public class QlearningAgent extends Agent {
         };
 
         grid = new int[][]{
-                {1, 0, 0},
-                {-1, 0, 0},
+                {0, 1, 0},
+                {-1, 0, -1},
                 {0, 0, 0}
         };
 
         SequentialBehaviour sequentialBehaviour = new SequentialBehaviour();
         sequentialBehaviour.addSubBehaviour(new ResetStateBehaviour());
-        sequentialBehaviour.addSubBehaviour(new QLearningBehaviour(jh));
+        sequentialBehaviour.addSubBehaviour(new QLearningBehaviour(this,5));
         sequentialBehaviour.addSubBehaviour(new ShowResultsBehaviour());
 
         addBehaviour(sequentialBehaviour);
@@ -64,8 +70,8 @@ public class QlearningAgent extends Agent {
                 stop();
                 return;
             }
-
             currentState = stateI * GRID_SIZE + stateJ;
+
             act = choseAction(0.3);
             nextState = executeAction(act);
             act1 = choseAction(0);
@@ -87,9 +93,10 @@ public class QlearningAgent extends Agent {
                 }
                 System.out.println("]");
             }
-            System.out.println("");
 
-            resetState();
+            System.out.println("");
+            new ResetStateBehaviour();
+
             while (!isFinished()) {
                 int act = choseAction(0);
                 System.out.println("State: " + (stateI * GRID_SIZE + stateJ) + " action: " + act);
@@ -125,7 +132,6 @@ public class QlearningAgent extends Agent {
         stateJ = Math.max(0, Math.min(actions[act][1] + stateJ, GRID_SIZE - 1));
         return stateI * GRID_SIZE + stateJ;
     }
-
     private boolean isFinished() {
         return grid[stateI][stateJ] == 1;
     }
